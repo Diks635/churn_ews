@@ -19,30 +19,22 @@ def predict_churn(data: dict):
     try:
         df = pd.DataFrame([data])
 
-        # -------------------------------
-        # Fill numeric columns safely
-        # -------------------------------
+        
         for col in num_cols:
             if col not in df.columns:
                 df[col] = 0.0
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
 
-        # -------------------------------
-        # Fill categorical columns safely
-        # -------------------------------
+        
         for col in cat_cols:
             if col not in df.columns:
                 df[col] = "No"
             df[col] = df[col].astype(str).fillna("No")
 
-        # -------------------------------
-        # Feature Engineering
-        # -------------------------------
+        
         df = create_features(df)
 
-        # -------------------------------
-        # Predict (pipeline handles preprocessing)
-        # -------------------------------
+        
         prediction = model.predict(df)[0]
         probability = model.predict_proba(df)[0][1]
 
