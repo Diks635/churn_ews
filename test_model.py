@@ -1,7 +1,6 @@
 import joblib
 import pandas as pd
 
-
 from src.feature_engineering import create_features
 
 model = joblib.load("models/churn_model.pkl")

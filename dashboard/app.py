@@ -4,11 +4,11 @@ import joblib
 import sys
 import os
 import plotly.express as px
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 from src.feature_engineering import create_features
-
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -46,7 +46,6 @@ payment_method = st.selectbox(
     ["Electronic check", "Mailed check", "Bank transfer (automatic)", "Credit card (automatic)"]
 )
 
-# Optional fields (if your model expects these)
 customerID = st.number_input("Customer ID", value=0)
 gender = st.selectbox("Gender", ["Male", "Female"])
 senior_citizen = st.selectbox("Senior Citizen", ["Yes", "No"])
@@ -89,7 +88,6 @@ for col in model_columns:
     if col not in input_data.columns:
         input_data[col] = 0
 
-# Reorder columns exactly as model expects
 input_data = input_data[model_columns]
 
 st.write("Input Data Types Before Prediction:")
@@ -107,7 +105,7 @@ if st.button("Predict Churn"):
 
     except Exception as e:
         st.error(f"Prediction failed: {str(e)}")
-    
+
 st.header("Churn Analysis Charts")
 st.write("Analyze churn patterns in your dataset (example)")
 
@@ -133,3 +131,4 @@ if os.path.exists(DATA_PATH):
 
 else:
     st.warning("Customer dataset for analysis not found. Place customer_data.csv in the data folder.")
+ 
