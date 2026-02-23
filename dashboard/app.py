@@ -4,13 +4,12 @@ import joblib
 import sys
 import os
 import plotly.express as px
-# Add the project root folder to Python path
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 from src.feature_engineering import create_features
 
-# -------------------- LOAD MODEL & ARTIFACTS --------------------
+
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MODEL_PATH = os.path.join(APP_DIR, "..", "models", "churn_model.pkl")
@@ -23,11 +22,9 @@ model_columns = joblib.load(COLUMNS_PATH)
 numeric_cols = joblib.load(NUM_COLS_PATH)
 categorical_cols = joblib.load(CAT_COLS_PATH)
 
-# -------------------- STREAMLIT APP --------------------
 st.title("Customer Churn Prediction")
 st.write("Enter customer details below:")
 
-# -------------------- INPUT FIELDS --------------------
 tenure = st.number_input("Tenure (months)", min_value=0, value=12)
 monthly_charges = st.number_input("Monthly Charges", min_value=0.0, value=70.0)
 total_charges = st.number_input("Total Charges", min_value=0.0, value=900.0)
@@ -55,7 +52,6 @@ gender = st.selectbox("Gender", ["Male", "Female"])
 senior_citizen = st.selectbox("Senior Citizen", ["Yes", "No"])
 phone_service = st.selectbox("Phone Service", ["Yes", "No"])
 
-# -------------------- BUILD INPUT DATAFRAME --------------------
 input_data = pd.DataFrame([{
     "tenure": tenure,
     "MonthlyCharges": monthly_charges,
@@ -79,10 +75,8 @@ input_data = pd.DataFrame([{
     "PhoneService": 1 if phone_service == "Yes" else 0
 }])
 
-# -------------------- APPLY FEATURE ENGINEERING --------------------
 input_data = create_features(input_data)
 
-# -------------------- ENSURE NUMERIC & CATEGORICAL --------------------
 for col in numeric_cols:
     if col in input_data.columns:
         input_data[col] = pd.to_numeric(input_data[col], errors="coerce").fillna(0.0)
@@ -91,7 +85,6 @@ for col in categorical_cols:
     if col in input_data.columns:
         input_data[col] = input_data[col].astype(str)
 
-# -------------------- FILL MISSING COLUMNS --------------------
 for col in model_columns:
     if col not in input_data.columns:
         input_data[col] = 0
@@ -99,13 +92,11 @@ for col in model_columns:
 # Reorder columns exactly as model expects
 input_data = input_data[model_columns]
 
-# -------------------- DEBUG --------------------
 st.write("Input Data Types Before Prediction:")
 st.write(input_data.dtypes)
 st.write("Input Data Preview:")
 st.write(input_data)
 
-# -------------------- PREDICTION --------------------
 if st.button("Predict Churn"):
     try:
         prediction = model.predict(input_data)[0]
@@ -117,31 +108,25 @@ if st.button("Predict Churn"):
     except Exception as e:
         st.error(f"Prediction failed: {str(e)}")
     
-# -------------------- SAMPLE CHURN ANALYSIS --------------------
 st.header("Churn Analysis Charts")
 st.write("Analyze churn patterns in your dataset (example)")
 
-# Load dataset for analysis
 DATA_PATH = os.path.join(BASE_DIR, "data", "Churn.csv")
 if os.path.exists(DATA_PATH):
     df = pd.read_csv(DATA_PATH)
     df = create_features(df)
 
-    # Total churn distribution
     fig1 = px.histogram(df, x="Churn", title="Churn Distribution")
     st.plotly_chart(fig1, use_container_width=True)
 
-    # Churn vs Contract Type
     fig2 = px.histogram(df, x="Contract", color="Churn", barmode="group",
                         title="Churn by Contract Type")
     st.plotly_chart(fig2, use_container_width=True)
 
-    # Monthly Charges vs Churn
     fig3 = px.box(df, x="Churn", y="MonthlyCharges", color="Churn",
                   title="Monthly Charges vs Churn")
     st.plotly_chart(fig3, use_container_width=True)
 
-    # Tenure vs Churn
     fig4 = px.box(df, x="Churn", y="tenure", color="Churn",
                   title="Tenure vs Churn")
     st.plotly_chart(fig4, use_container_width=True)
